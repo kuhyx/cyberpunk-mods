@@ -9,6 +9,7 @@ stack they run on.
 | `no_auto_track` | Quest tracking only changes when you choose. Automatic switches (next quest after completion, new quest/gig/fixer, main-quest re-track) are reverted; a tracked quest advancing to its next objective stays tracked. |
 | `fast_travel_map` | The fast-travel map behaves like the regular map: same filter, tracked-quest panel, no "select destination" box, right-click sets/removes a waypoint. Esc/B closes; hold to fast travel is unchanged. |
 | `radio_in_combat` | With your car radio or pocket radio playing, combat neither fades it nor starts combat music. With no radio on, vanilla combat music. |
+| `auto_disassemble` | Weapons, clothing, junk and weapon/clothing mods are disassembled on pickup (outside menus, so buying/crafting/stash transfers are safe), once after each load, and via the inventory's "Disassemble Junk" button. Never: iconics, equipped, wardrobe-outfit or favourited items, quest items, grenades, consumables, cyberware (incl. its mods and quickhacks), or the stash. |
 | `skip_intro` | Built at install time from your own game files: the startup logo/intro videos cut to one frame (`archive/pc/mod/kuhy_skip_intro.archive`). |
 | `kuhy_common` | Shared `KuhyLog` (Codeware `ModLog`, or a no-op if RED4ext did not load). |
 | Auto Drive Enhanced | Third-party ([Nexus 23157](https://www.nexusmods.com/cyberpunk2077/mods/23157)); installed from `~/Downloads` if present. |
