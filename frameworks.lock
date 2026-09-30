@@ -1,0 +1,13 @@
+# name	url	sha256
+# Exact pins. Each archive extracts at the game root (bin/, r6/, red4ext/).
+# Bump a line, run scripts/fetch_frameworks.sh --update-hashes, then check.sh.
+cet	https://github.com/maximegmd/CyberEngineTweaks/releases/download/v1.37.1/cet_1.37.1.zip	1855017796a27f518199f5b7d7210ef1db7a5c5f0af468c68e04e6e666ad248c
+redscript	https://github.com/jac3km4/redscript/releases/download/v0.5.31/redscript-v0.5.31-windows.zip	799bbd88863f6728616f8d723c941ea15dff71ed5bbfd50c525f0d39ea0bf46b
+red4ext	https://github.com/wopss/RED4ext/releases/download/v1.30.0/red4ext-1.30.0.zip	3a72225c9d2c46c99f4a4159d952b9d24366357c2423eb7ea255c84e9e11c0b0
+archivexl	https://github.com/psiberx/cp2077-archive-xl/releases/download/v1.27.3/ArchiveXL-1.27.3.zip	3f630b9cd4ef17b971a3d38dfee14e5bdde925aa5c05bd98812d1c3761480b39
+tweakxl	https://github.com/psiberx/cp2077-tweak-xl/releases/download/v1.11.4/TweakXL-1.11.4.zip	13033a1f10cb1dbfa534964b22e3405aa33e8f29145f17164d318b021402883f
+codeware	https://github.com/psiberx/cp2077-codeware/releases/download/v1.20.5/Codeware-1.20.5.zip	102989e199bad650fe6e53395c22bac53fdd7abecc6eeec3b0046886631591f0
+input_loader	https://github.com/jackhumbert/cyberpunk2077-input-loader/releases/download/v0.2.3/input_loader_v0.2.3.zip	6011515264bfb582591bf2ce66e956ac9c7993dfb5046590ba3ee7625af603ee
+mod_settings	https://github.com/jackhumbert/mod_settings/releases/download/v0.2.21/mod_settings_v0.2.21.zip	7efa862a688e61002979de06ed0e7dcf0205f8d480c28aa91d8063721f27ce1f
+# Compiler used only by scripts/check.sh (run under wine); never installed.
+@redscript_cli	https://github.com/jac3km4/redscript/releases/download/v0.5.31/redscript-cli.exe	cdcbed2e0c943322bbcbbac4a9c62ef29adc5620e4b0934f0d2a31a8282b5b62

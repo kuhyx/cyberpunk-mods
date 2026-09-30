@@ -1,0 +1,55 @@
+# Pre-commit hooks mirror the CI gates. Install with: pre-commit install
+repos:
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
+
+      - id: ruff
+        name: ruff
+        entry: ruff check --fix
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format
+        language: system
+        types: [python]
+
+      # One redscript error disables every script mod in game; compile all
+      # mods against the pristine 2.31 bundle whenever one changes.
+      - id: redscript-compile
+        name: redscript compile gate
+        entry: scripts/check.sh
+        language: system
+        pass_filenames: false
+        files: (\.reds$|^frameworks\.lock$)
+
+      - id: frameworks-fresh
+        name: frameworks on newest stable
+        entry: scripts/check_frameworks_fresh.sh
+        language: system
+        pass_filenames: false
+        files: ^frameworks\.lock$
+
+      - id: file-length
+        name: file length cap (250)
+        entry: scripts/check_file_length.sh
+        language: system
+
+      - id: md-naming
+        name: markdown naming convention
+        entry: scripts/check_md_naming.sh
+        language: system
+        files: \.(md|markdown)$
+
+      - id: dependency-freshness
+        name: dependencies on newest stable
+        entry: scripts/check_dependency_freshness.sh
+        language: system
+        pass_filenames: true
+        files: \.github/workflows/.*\.ya?ml$

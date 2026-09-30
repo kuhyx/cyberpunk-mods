@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# Downloads, game bundles and wine state live in ~/data/cyberpunk-mods, never here.
+*.zip
+*.7z
+*.redscripts

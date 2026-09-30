@@ -1,0 +1,44 @@
+name: CI
+
+# The redscript compile gate (scripts/check.sh) needs the proprietary game
+# script bundle, so it runs locally before every install, not here. CI covers
+# everything that does not need the game: shell/Python lint, the file-length
+# cap and framework pins being on the newest stable release.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shellcheck
+        run: shellcheck install.sh uninstall.sh scripts/*.sh
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Ruff
+        run: |
+          python -m pip install --upgrade ruff
+          ruff check scripts
+          ruff format --check scripts
+
+      - name: Check out the shared gates
+        uses: actions/checkout@v4
+        with:
+          repository: kuhyx/utils
+          path: .utils
+
+      - name: File-length cap
+        run: bash .utils/scripts/check_file_length.sh --all
+
+      - name: Frameworks pinned to newest stable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: scripts/check_frameworks_fresh.sh
