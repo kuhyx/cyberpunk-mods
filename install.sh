@@ -106,6 +106,10 @@ main() {
         echo "installed $(basename "$mod")"
     done
 
+    "$REPO_ROOT/scripts/build_skip_intro.sh" "$GAME_DIR" "$TEMP_DIR/skip_intro"
+    deploy_tree "$TEMP_DIR/skip_intro" "$MANIFEST.new"
+    echo "installed skip_intro"
+
     if [[ -n "$ade_root" ]]; then
         deploy_tree "$ade_root" "$MANIFEST.new"
         echo "installed Auto Drive Enhanced"

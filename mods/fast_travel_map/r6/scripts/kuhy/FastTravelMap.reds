@@ -4,14 +4,44 @@
 // Hold-to-fast-travel on a fast-travel point is untouched; Esc/B closes.
 module Kuhy.FastTravelMap
 
+// Remembers a right-click in the fast-travel map for the scenario's OnBack,
+// which arrives right after the press (same order the hub map relies on).
+public class FastTravelMapState extends ScriptableSystem {
+  private let m_rmbPending: Bool;
+  private let m_rmbAt: Float;
+
+  public final static func Get() -> ref<FastTravelMapState> {
+    return GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"Kuhy.FastTravelMap.FastTravelMapState") as FastTravelMapState;
+  }
+
+  private final func Now() -> Float {
+    return EngineTime.ToFloat(GameInstance.GetEngineTime(this.GetGameInstance()));
+  }
+
+  public final func MarkRightClick() -> Void {
+    this.m_rmbPending = true;
+    this.m_rmbAt = this.Now();
+  }
+
+  // True once if a right-click happened in the last second.
+  public final func ConsumeRightClick() -> Bool {
+    let recent: Bool = this.m_rmbPending && this.Now() - this.m_rmbAt <= 1.0;
+    this.m_rmbPending = false;
+    return recent;
+  }
+}
+
 // Vanilla forces the FastTravel quick filter here; restore the filter the
-// menu was initialised with (the one saved by the regular map).
+// menu was initialised with (the one saved by the regular map). If that is
+// already FastTravel there is nothing to restore.
 @wrapMethod(WorldMapMenuGameController)
 protected cb func OnEntityAttached() -> Bool {
   let savedFilter: gamedataWorldMapFilter = this.GetQuickFilter();
   let result: Bool = wrappedMethod();
   if this.IsFastTravelEnabled() {
-    this.SetQuickFilter(savedFilter);
+    if NotEquals(savedFilter, gamedataWorldMapFilter.FastTravel) {
+      this.SetQuickFilter(savedFilter);
+    };
     this.UpdateFastTravelVisiblity(false);
     this.UpdateTrackedQuest();
     this.RefreshInputHints();
@@ -19,41 +49,36 @@ protected cb func OnEntityAttached() -> Bool {
   return result;
 }
 
-// Vanilla only persists filter changes made on the regular map.
+// Vanilla only persists filter changes made on the regular map. Never save
+// the forced FastTravel filter, or the regular map would inherit it.
 @wrapMethod(WorldMapMenuGameController)
 protected cb func OnUninitialize() -> Bool {
-  if this.IsFastTravelEnabled() {
+  if this.IsFastTravelEnabled() && NotEquals(this.GetQuickFilter(), gamedataWorldMapFilter.FastTravel) {
     this.SaveFilters();
   };
   return wrappedMethod();
 }
 
-// Right-click sets m_pressedRMB before the menu's back event arrives -- the
-// same signal the regular (hub) map uses to stay open. In fast-travel mode
-// the controller now decides whether to close.
 @wrapMethod(WorldMapMenuGameController)
-protected cb func OnBack(userData: ref<IScriptable>) -> Bool {
-  if !this.IsFastTravelEnabled() {
-    return wrappedMethod(userData);
+private final func HandlePressInput(e: ref<inkPointerEvent>) -> Void {
+  if e.IsAction(n"world_map_menu_track_waypoint") && this.IsFastTravelEnabled() {
+    let state: ref<FastTravelMapState> = FastTravelMapState.Get();
+    if IsDefined(state) {
+      state.MarkRightClick();
+    };
   };
-  let pressedRMB: Bool = this.m_pressedRMB;
-  this.m_pressedRMB = false;
-  if !pressedRMB {
-    this.PlaySound(n"Button", n"OnPress");
-    this.m_menuEventDispatcher.SpawnEvent(n"OnKuhyCloseFastTravel");
-  };
-  return true;
+  wrappedMethod(e);
 }
 
-// Closing is routed through the map controller above (Esc, B, and the
-// OnBack that vanilla FastTravel() spawns after a successful travel).
+// Vanilla closes the fast-travel menu on every back event, and right-click
+// is one. Swallow the back that a right-click produced; Esc/B and the OnBack
+// that vanilla FastTravel() spawns after travelling still close it.
 @replaceMethod(MenuScenario_FastTravel)
 protected cb func OnBack() -> Bool {
-  return true;
-}
-
-@addMethod(MenuScenario_FastTravel)
-protected cb func OnKuhyCloseFastTravel() -> Bool {
+  let state: ref<FastTravelMapState> = FastTravelMapState.Get();
+  if IsDefined(state) && state.ConsumeRightClick() {
+    return true;
+  };
   this.GotoIdleState();
   return true;
 }

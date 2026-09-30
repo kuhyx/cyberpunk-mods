@@ -9,6 +9,8 @@ stack they run on.
 | `no_auto_track` | Quest tracking only changes when you choose. Automatic switches (next quest after completion, new quest/gig/fixer, main-quest re-track) are reverted; a tracked quest advancing to its next objective stays tracked. |
 | `fast_travel_map` | The fast-travel map behaves like the regular map: same filter, tracked-quest panel, no "select destination" box, right-click sets/removes a waypoint. Esc/B closes; hold to fast travel is unchanged. |
 | `radio_in_combat` | With your car radio or pocket radio playing, combat neither fades it nor starts combat music. With no radio on, vanilla combat music. |
+| `skip_intro` | Built at install time from your own game files: the startup logo/intro videos cut to one frame (`archive/pc/mod/kuhy_skip_intro.archive`). |
+| `kuhy_common` | Shared `KuhyLog` (Codeware `ModLog`, or a no-op if RED4ext did not load). |
 | Auto Drive Enhanced | Third-party ([Nexus 23157](https://www.nexusmods.com/cyberpunk2077/mods/23157)); installed from `~/Downloads` if present. |
 
 Launch flags (`--launcher-skip -skipStartScreen`) and the Proton DLL override
@@ -30,8 +32,10 @@ State lives in `~/data/cyberpunk-mods/` (download cache, pristine script
 bundle, wine prefix, install manifest). Framework versions and hashes are
 pinned in `frameworks.lock`.
 
-## Known gaps
+## Safety properties
 
-- The CD PROJEKT / partner logo videos before the menu still play: they are
-  chosen by native code, not scripts. `-skipStartScreen` removes the
-  breaching screen.
+- `scripts/check.sh` compiles twice: with the frameworks, and mods-only (what
+  the game compiles when RED4ext fails to load). Both must pass, so a missing
+  launch option cannot break every script mod at once.
+- Nothing deployed overwrites a vanilla file; `uninstall.sh` deletes the
+  manifest's files and restores the pristine script bundle.

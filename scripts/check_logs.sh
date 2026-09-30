@@ -40,7 +40,7 @@ main() {
     scan redscript "$GAME_DIR/r6/logs/redscript_rCURRENT.log" '^\s*\[?ERROR|compilation failed'
 
     echo "--- mod log lines"
-    grep -ahE 'Kuhy\.' "$GAME_DIR/r6/logs/redscript_rCURRENT.log" "$GAME_DIR"/red4ext/logs/*.log 2>/dev/null | tail -30 || true
+    grep -rahE 'Kuhy\.' "$GAME_DIR/r6/logs" "$GAME_DIR/red4ext/logs" 2>/dev/null | tail -30 || true
     exit "$FAILED"
 }
 

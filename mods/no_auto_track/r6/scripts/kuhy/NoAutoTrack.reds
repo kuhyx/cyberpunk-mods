@@ -9,6 +9,8 @@
 // reverts any change that arrives outside one.
 module Kuhy.NoAutoTrack
 
+import Kuhy.Common.*
+
 public class NoAutoTrackSystem extends ScriptableSystem {
   private let m_journal: wref<JournalManager>;
   // Top-level quest the player chose (0 = nothing tracked on purpose).
@@ -61,7 +63,7 @@ public class NoAutoTrackSystem extends ScriptableSystem {
     if questHash == this.m_userQuestHash {
       return true;
     };
-    ModLog(n"Kuhy.NoAutoTrack", s"reverting automatic track of quest \(questHash) (player chose \(this.m_userQuestHash))");
+    KuhyLog(n"Kuhy.NoAutoTrack", s"reverting automatic track of quest \(questHash) (player chose \(this.m_userQuestHash))");
     this.RestorePlayerChoice();
     return true;
   }

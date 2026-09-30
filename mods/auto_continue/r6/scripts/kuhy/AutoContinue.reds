@@ -2,8 +2,15 @@
 // main menu appears in a game process. Quitting to the menu later is left
 // alone, so the one-shot flag lives in a Codeware service (one per process)
 // rather than on the menu controller (recreated every time the menu opens).
+//
+// @if(ModuleExists("Codeware")): if RED4ext fails to load, Codeware's
+// scripts are absent and this file compiles to nothing instead of breaking
+// the build for every other script mod.
 module Kuhy.AutoContinue
 
+import Kuhy.Common.*
+
+@if(ModuleExists("Codeware"))
 public class AutoContinueService extends ScriptableService {
   private let m_fired: Bool;
 
@@ -22,13 +29,14 @@ public class AutoContinueService extends ScriptableService {
 
 // Metadata for save index 0 is what the vanilla Continue path needs to pick
 // LoadModdedSave vs LoadLastCheckpoint, so fire only once it has arrived.
+@if(ModuleExists("Codeware"))
 @wrapMethod(SingleplayerMenuGameController)
 protected cb func OnSaveMetadataReady(info: ref<SaveMetadataInfo>) -> Bool {
   let result: Bool = wrappedMethod(info);
   if info.saveIndex == 0 && info.isValid && this.m_savesCount > 0 {
     let service: ref<AutoContinueService> = AutoContinueService.Get();
     if IsDefined(service) && service.Claim() {
-      ModLog(n"Kuhy.AutoContinue", s"loading newest save (modded=\(this.m_isModded))");
+      KuhyLog(n"Kuhy.AutoContinue", s"loading newest save (modded=\(this.m_isModded))");
       if this.m_isModded {
         this.LoadModdedSave(0);
       } else {

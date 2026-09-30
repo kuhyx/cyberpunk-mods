@@ -8,6 +8,8 @@
 // matching "LeaveCombat") whenever a radio is playing.
 module Kuhy.RadioInCombat
 
+import Kuhy.Common.*
+
 public class RadioInCombatSystem extends ScriptableSystem {
   private let m_player: wref<PlayerPuppet>;
   private let m_inCombat: Bool;
@@ -55,7 +57,7 @@ public class RadioInCombatSystem extends ScriptableSystem {
     };
     this.m_toneSent = wantTone;
     GameInstance.GetAudioSystem(this.GetGameInstance()).NotifyGameTone(wantTone ? n"EnterCombat" : n"LeaveCombat");
-    ModLog(n"Kuhy.RadioInCombat", wantTone ? "combat music on" : "combat music off (radio playing or combat over)");
+    KuhyLog(n"Kuhy.RadioInCombat", wantTone ? "combat music on" : "combat music off (radio playing or combat over)");
   }
 
   private final func IsRadioPlaying() -> Bool {
@@ -70,6 +72,17 @@ public class RadioInCombatSystem extends ScriptableSystem {
     };
     return IsDefined(player.GetPocketRadio()) && player.GetPocketRadio().IsActive();
   }
+}
+
+// Hands a combat transition to the system; plays the vanilla tone if the
+// system is somehow unavailable so combat music never disappears for good.
+public static func KuhyRadioCombatChanged(owner: wref<GameObject>, inCombat: Bool) -> Void {
+  let system: ref<RadioInCombatSystem> = RadioInCombatSystem.Get(owner.GetGame());
+  if IsDefined(system) {
+    system.OnCombatChanged(owner as PlayerPuppet, inCombat);
+  } else {
+    GameInstance.GetAudioSystem(owner.GetGame()).NotifyGameTone(inCombat ? n"EnterCombat" : n"LeaveCombat");
+  };
 }
 
 public class RadioInCombatPoll extends DelayCallback {
@@ -93,7 +106,7 @@ private final func ActivateCombat() -> Void {
   };
   FastTravelSystem.AddFastTravelLock(n"InCombat", this.m_owner.GetGame());
   ChatterHelper.TryPlayEnterCombatChatter(this.m_owner);
-  RadioInCombatSystem.Get(this.m_owner.GetGame()).OnCombatChanged(this.m_owner as PlayerPuppet, true);
+  KuhyRadioCombatChanged(this.m_owner, true);
   GameInstance.GetAudioSystem(this.m_owner.GetGame()).HandleCombatMix(this.m_owner);
   if !this.GetBoolFromQuestDB(n"block_combat_scripts_tutorials") && this.IsRightHandInUnequippedState() && !this.GetBoolFromQuestDB(n"disable_tutorials") {
     this.TutorialSetFact(n"combat_tutorial");
@@ -111,7 +124,7 @@ private final func ActivateOutOfCombat() -> Void {
     GameInstance.GetStatPoolsSystem(this.m_owner.GetGame()).RequestSettingModifierWithRecord(Cast<StatsObjectID>(this.m_owner.GetEntityID()), gamedataStatPoolType.Health, gameStatPoolModificationTypes.Regeneration, t"BaseStatPools.PlayerBaseOutOfCombatHealthRegen");
   };
   ChatterHelper.TryPlayLeaveCombatChatter(this.m_owner);
-  RadioInCombatSystem.Get(this.m_owner.GetGame()).OnCombatChanged(this.m_owner as PlayerPuppet, false);
+  KuhyRadioCombatChanged(this.m_owner, false);
   GameInstance.GetAudioSystem(this.m_owner.GetGame()).HandleOutOfCombatMix(this.m_owner);
   FastTravelSystem.RemoveFastTravelLock(n"InCombat", this.m_owner.GetGame());
   GameObjectEffectHelper.BreakEffectLoopEvent(this.m_owner, n"stealth_mode");
