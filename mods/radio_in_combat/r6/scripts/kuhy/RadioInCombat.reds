@@ -23,6 +23,10 @@ public class RadioInCombatSystem extends ScriptableSystem {
     return GameInstance.GetScriptableSystemsContainer(game).Get(n"Kuhy.RadioInCombat.RadioInCombatSystem") as RadioInCombatSystem;
   }
 
+  public final func IsCombatToneSent() -> Bool {
+    return this.m_toneSent;
+  }
+
   public final func OnCombatChanged(player: wref<PlayerPuppet>, inCombat: Bool) -> Void {
     this.m_player = player;
     this.m_inCombat = inCombat;

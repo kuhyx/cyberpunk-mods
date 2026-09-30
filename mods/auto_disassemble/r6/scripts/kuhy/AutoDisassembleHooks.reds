@@ -1,15 +1,23 @@
 // Entry points for AutoDisassemble: pickups, save loads, inventory button.
 module Kuhy.AutoDisassemble
 
+import Kuhy.Common.*
+
 // Pickups only: anything added while a menu is open is a purchase, a craft,
 // a stash transfer or a removed mod -- the player's deliberate choice.
 @wrapMethod(PlayerPuppet)
 protected cb func OnItemAddedToInventory(evt: ref<ItemAddedEvent>) -> Bool {
   let result: Bool = wrappedMethod(evt);
   let uiSystem: ref<IBlackboard> = GameInstance.GetBlackboardSystem(this.GetGame()).Get(GetAllBlackboardDefs().UI_System);
-  if ItemID.IsValid(evt.itemID) && !evt.flaggedAsSilent && !uiSystem.GetBool(GetAllBlackboardDefs().UI_System.IsInMenu) {
-    AutoDisassembleSystem.Get(this.GetGame()).SchedulePickup(this, evt.itemID);
+  let system: ref<AutoDisassembleSystem> = AutoDisassembleSystem.Get(this.GetGame());
+  if !ItemID.IsValid(evt.itemID) || !IsDefined(system) || !system.IsReady() {
+    return result;
   };
+  if evt.flaggedAsSilent || uiSystem.GetBool(GetAllBlackboardDefs().UI_System.IsInMenu) {
+    KuhyLog(n"Kuhy.AutoDisassemble", s"skip \(TDBID.ToStringDEBUG(ItemID.GetTDBID(evt.itemID))): silent=\(evt.flaggedAsSilent) or in menu");
+    return result;
+  };
+  system.SchedulePickup(this, evt.itemID);
   return result;
 }
 
@@ -19,7 +27,7 @@ protected cb func OnGameAttached() -> Bool {
   let result: Bool = wrappedMethod();
   let system: ref<AutoDisassembleSystem> = AutoDisassembleSystem.Get(this.GetGame());
   if IsDefined(system) {
-    system.ScheduleSweep(this, 5.0);
+    system.ScheduleSweep(this, 10.0);
   };
   return result;
 }

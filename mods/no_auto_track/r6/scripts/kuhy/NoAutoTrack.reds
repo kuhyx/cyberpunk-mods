@@ -17,6 +17,8 @@ public class NoAutoTrackSystem extends ScriptableSystem {
   private let m_userQuestHash: Int32;
   // Engine time until which tracking changes count as the player's own.
   private let m_intentUntil: Float;
+  private let m_revertQueued: Bool;
+  private let m_restoring: Bool;
 
   // Player intent lasts this long; the journal callback lands well inside.
   private final const func IntentSeconds() -> Float = 1.0
@@ -40,6 +42,7 @@ public class NoAutoTrackSystem extends ScriptableSystem {
   public final func OnPlayerAttached() -> Void {
     this.OpenIntent(this.LoadGraceSeconds());
     this.m_userQuestHash = this.QuestHashOf(this.m_journal.GetTrackedEntry());
+    KuhyLog(n"Kuhy.NoAutoTrack", s"player attached, adopting quest \(this.m_userQuestHash)");
   }
 
   public final func MarkPlayerIntent() -> Void {
@@ -56,21 +59,39 @@ public class NoAutoTrackSystem extends ScriptableSystem {
 
   protected cb func OnTrackedEntryChanges(hash: Uint32, className: CName, notifyOption: JournalNotifyOption, changeType: JournalChangeType) -> Bool {
     let questHash: Int32 = this.QuestHashOf(this.m_journal.GetTrackedEntry());
+    KuhyLog(n"Kuhy.NoAutoTrack", s"tracked change: quest \(questHash), player chose \(this.m_userQuestHash), intent=\(this.Now() <= this.m_intentUntil)");
     if this.Now() <= this.m_intentUntil {
       this.m_userQuestHash = questHash;
       return true;
     };
-    if questHash == this.m_userQuestHash {
+    if questHash == this.m_userQuestHash || this.m_restoring || this.m_revertQueued {
       return true;
     };
-    KuhyLog(n"Kuhy.NoAutoTrack", s"reverting automatic track of quest \(questHash) (player chose \(this.m_userQuestHash))");
-    this.RestorePlayerChoice();
+    // Never revert inside the callback: TrackEntry/UntrackEntry fire this
+    // callback again synchronously, before GetTrackedEntry reflects the
+    // change, which recursed forever and froze the game (self-test,
+    // 2026-09-30). Revert on the next frame instead, once.
+    this.m_revertQueued = true;
+    let callback: ref<NoAutoTrackRevert> = new NoAutoTrackRevert();
+    callback.m_system = this;
+    GameInstance.GetDelaySystem(this.GetGameInstance()).DelayCallbackNextFrame(callback);
     return true;
   }
 
+  public final func RevertIfStillAutomatic() -> Void {
+    let questHash: Int32 = this.QuestHashOf(this.m_journal.GetTrackedEntry());
+    this.m_revertQueued = false;
+    if questHash == this.m_userQuestHash || this.Now() <= this.m_intentUntil {
+      return;
+    };
+    KuhyLog(n"Kuhy.NoAutoTrack", s"reverting automatic track of quest \(questHash) (player chose \(this.m_userQuestHash))");
+    this.m_restoring = true;
+    this.RestorePlayerChoice();
+    this.m_restoring = false;
+  }
+
   // Re-track the player's quest if it is still running, otherwise untrack.
-  // Either call re-enters OnTrackedEntryChanges with the player's quest (or
-  // nothing) tracked, which matches m_userQuestHash, so it cannot loop.
+  // Callbacks fired while this runs are ignored (m_restoring).
   private final func RestorePlayerChoice() -> Void {
     let objective: wref<JournalEntry>;
     let questEntry: wref<JournalEntry>;
@@ -118,6 +139,16 @@ public class NoAutoTrackSystem extends ScriptableSystem {
       questEntry = entry as JournalQuest;
     };
     return IsDefined(questEntry) ? this.m_journal.GetEntryHash(questEntry) : 0;
+  }
+}
+
+public class NoAutoTrackRevert extends DelayCallback {
+  public let m_system: wref<NoAutoTrackSystem>;
+
+  public func Call() -> Void {
+    if IsDefined(this.m_system) {
+      this.m_system.RevertIfStillAutomatic();
+    };
   }
 }
 

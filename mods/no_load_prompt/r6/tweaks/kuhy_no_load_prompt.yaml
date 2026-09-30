@@ -1,0 +1,40 @@
+# First load of a session: the story loading screens (initial_loading_screen and
+# the after-quest cinematics) end on "Press [Space] to continue". Point every
+# initial-loading-screen record at the generic in-game loading widget, which
+# hands over to gameplay as soon as the world is ready.
+InitLoadingScreen.DefaultInitialLoadingScreen:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenAfterQ302:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenAfterQ303:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenAfterQ304:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenAfterQ305a:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenAfterQ305b:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenBeforeQ301:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenBeforeQ301_Recap:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.Ep1LoadingScreenBeforeQ301_Recap_Male:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter104quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter110quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter112quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter113quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter114quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter115quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenAfter5quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenBefore5quest:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'
+InitLoadingScreen.LoadingScreenExample:
+  loadingScreenResource: 'base\gameplay\gui\fullscreen\loading\loading_screen.inkwidget'

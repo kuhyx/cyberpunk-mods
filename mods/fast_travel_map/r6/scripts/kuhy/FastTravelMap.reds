@@ -4,6 +4,8 @@
 // Hold-to-fast-travel on a fast-travel point is untouched; Esc/B closes.
 module Kuhy.FastTravelMap
 
+import Kuhy.Common.*
+
 // Remembers a right-click in the fast-travel map for the scenario's OnBack,
 // which arrives right after the press (same order the hub map relies on).
 public class FastTravelMapState extends ScriptableSystem {
@@ -77,8 +79,10 @@ private final func HandlePressInput(e: ref<inkPointerEvent>) -> Void {
 protected cb func OnBack() -> Bool {
   let state: ref<FastTravelMapState> = FastTravelMapState.Get();
   if IsDefined(state) && state.ConsumeRightClick() {
+    KuhyLog(n"Kuhy.FastTravelMap", "back from right-click ignored");
     return true;
   };
+  KuhyLog(n"Kuhy.FastTravelMap", "back: closing fast travel map");
   this.GotoIdleState();
   return true;
 }

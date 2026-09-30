@@ -36,6 +36,12 @@ repos:
         pass_filenames: false
         files: ^frameworks\.lock$
 
+      - id: lua-syntax
+        name: lua syntax (CET self-test)
+        entry: luac -p
+        language: system
+        files: \.lua$
+
       - id: file-length
         name: file length cap (250)
         entry: scripts/check_file_length.sh

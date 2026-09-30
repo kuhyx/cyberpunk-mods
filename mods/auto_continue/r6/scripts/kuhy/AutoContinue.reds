@@ -37,6 +37,13 @@ protected cb func OnSaveMetadataReady(info: ref<SaveMetadataInfo>) -> Bool {
     let service: ref<AutoContinueService> = AutoContinueService.Get();
     if IsDefined(service) && service.Claim() {
       KuhyLog(n"Kuhy.AutoContinue", s"loading newest save (modded=\(this.m_isModded))");
+      // The first load of a session ends on "Press [Space] to continue".
+      // Asking for the fast-travel loading screen, together with the
+      // no_load_prompt TweakXL override of the initial loading screens,
+      // drops straight into gameplay instead (verified in game 2026-09-30).
+      let loadingScreen: ref<inkSetNextLoadingScreenEvent> = new inkSetNextLoadingScreenEvent();
+      loadingScreen.SetNextLoadingScreenType(inkLoadingScreenType.FastTravel);
+      this.QueueBroadcastEvent(loadingScreen);
       if this.m_isModded {
         this.LoadModdedSave(0);
       } else {

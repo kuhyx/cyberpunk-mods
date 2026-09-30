@@ -106,6 +106,7 @@ main() {
         echo "installed $(basename "$mod")"
     done
 
+    "$REPO_ROOT/scripts/ensure_vcruntime.sh"
     "$REPO_ROOT/scripts/build_skip_intro.sh" "$GAME_DIR" "$TEMP_DIR/skip_intro"
     deploy_tree "$TEMP_DIR/skip_intro" "$MANIFEST.new"
     echo "installed skip_intro"
